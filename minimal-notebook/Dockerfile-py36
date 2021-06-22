@@ -98,15 +98,6 @@ RUN rm -rf /tmp/src/.git* && \
 
 USER 1001
 
-# Set ZF proxies
-ENV http_proxy= \
-    https_proxy= \
-    no_proxy= \
-    HTTP_PROXY= \
-    HTTPS_PROXY= \
-    NO_PROXY=
-
-
 LABEL io.k8s.description="CUDA based Jupyter notebooks." \
       io.k8s.display-name="Jupyter Notebook" \
       io.openshift.expose-services="8080:http" \
@@ -114,5 +105,13 @@ LABEL io.k8s.description="CUDA based Jupyter notebooks." \
       io.openshift.s2i.scripts-url="image:///opt/app-root/builder"
 
 RUN /tmp/scripts/assemble
+
+# Set ZF proxies
+ENV http_proxy= \
+    https_proxy= \
+    no_proxy= \
+    HTTP_PROXY= \
+    HTTPS_PROXY= \
+    NO_PROXY=
 
 CMD [ "/opt/app-root/builder/run" ]
