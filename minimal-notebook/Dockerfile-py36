@@ -23,7 +23,6 @@ RUN yum install -y rh-nodejs10
 
 #### Default PATH ####
 
-
 ENV CUDA_HOME /usr/local/cuda
 ENV PATH $PATH:$CUDA_HOME
 
@@ -36,58 +35,62 @@ ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD
 
 LABEL com.nvidia.volumes.needed="nvidia_driver"
 
-#### Nvidia Container Runtime ###
+#### NVIDIA CUDA BASE + RUNTIME ####
 
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-ENV NVIDIA_REQUIRE_CUDA "cuda>=9.0"
-
-#### NVIDIA CUDA Runtime ####
-
-ENV CUDA_VERSION 9.0.176
+ENV CUDA_VERSION 11.2.0
 
 LABEL com.nvidia.cuda.version="${CUDA_VERSION}"
+    
+RUN NVIDIA_GPGKEY_SUM=d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5 && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/7fa2af80.pub | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA && \
+    echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c --strict -
+    
+COPY cuda.repo /etc/yum.repos.d/cuda.repo
+COPY nvidia-ml.repo /etc/yum.repos.d/nvidia-ml.repo 
 
-ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
-
-ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+RUN yum upgrade -y && yum install -y \
+    cuda-cudart-11-2-11.2.72-1 \
+    cuda-compat-11-2 \
+    && ln -s cuda-11.2 /usr/local/cuda \
+    && yum clean all \
+    && rm -rf /var/cache/yum/*
 
 RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
     echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf && \
     echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/nvidia.conf && \
     echo "/usr/local/cuda/extras/CUPTI/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+    
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+    
+COPY NGC-DL-CONTAINER-LICENSE /
 
-RUN NVIDIA_GPGKEY_SUM=d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5 && \
-    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/7fa2af80.pub | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA && \
-    echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c --strict -
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+ENV NVIDIA_REQUIRE_CUDA "cuda>=11.2 brand=tesla,driver>=418,driver<419 brand=tesla,driver>=440,driver<441 driver>=450"
 
-COPY cuda.repo /etc/yum.repos.d/cuda.repo
+ENV NCCL_VERSION 2.8.4
 
-ENV CUDA_PKG_VERSION 9-0-$CUDA_VERSION
 RUN yum install -y \
-        cuda-nvrtc-$CUDA_PKG_VERSION-1 \
-        cuda-nvgraph-$CUDA_PKG_VERSION-1 \
-        cuda-cusolver-$CUDA_PKG_VERSION-1 \
-        cuda-cublas-$CUDA_PKG_VERSION.3-1 \
-        cuda-cufft-$CUDA_PKG_VERSION-1 \
-        cuda-curand-$CUDA_PKG_VERSION-1 \
-        cuda-cusparse-$CUDA_PKG_VERSION-1 \
-        cuda-npp-$CUDA_PKG_VERSION-1 \
-        cuda-cudart-$CUDA_PKG_VERSION-1 && \
-    ln -s cuda-9.0 /usr/local/cuda && \
-    rm -rf /var/cache/yum/*
-
-#### NVIDIA CUDA ####
-
-RUN yum install -y cuda-9-0
-
-#### NVIDIA CUDNN ####
+    cuda-libraries-11-2-11.2.0-1 \
+    cuda-nvtx-11-2-11.2.67-1 \
+    libnpp-11-2-11.2.1.68-1 \
+    libcublas-11-2-11.3.1.68-1 \
+    libnccl-2.8.4-1+cuda11.2 \
+    && yum clean all \
+    && rm -rf /var/cache/yum/*
 
 COPY . /tmp/src
 
-#RUN tar --no-same-owner -xzf /tmp/src/cudnn-9.0-linux-x64-v7.1.tgz -C /usr/local --wildcards 'cuda/lib64/libcudnn.so.*' && \
-#    rm /tmp/src/cudnn-*.tgz && \
-#    ldconfig
+#### NVIDIA CUDNN 8.1.1 ####
+#ENV CUDNN_VERSION 8.1.1.33
+#LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
+
+#RUN yum install -y \
+#    libcudnn8-${CUDNN_VERSION}-1.cuda11.2 \
+#    && yum clean all \
+#    && rm -rf /var/cache/yum/*
 
 RUN rm -rf /tmp/src/.git* && \
     chown -R 1001 /tmp/src && \
