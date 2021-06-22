@@ -1,14 +1,15 @@
-FROM registry.cloud.zf-world.com/aitechcenter/centos7-python38:latest
+#FROM registry.cloud.zf-world.com/aitechcenter/centos7-python38:latest
+FROM centos/python-38-centos7:latest
 
 LABEL maintainer "Z0003864<vivek.thota@zf.com>"
 
 # Set ZF proxies
-ENV http_proxy=http://frd-proxy.emea.zf-world.com:8080 \
-    https_proxy=http://frd-proxy.emea.zf-world.com:8080 \
-    no_proxy=.zf-world.com \
-    HTTP_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
-    HTTPS_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
-    NO_PROXY=.zf-world.com
+#ENV http_proxy=http://frd-proxy.emea.zf-world.com:8080 \
+#    https_proxy=http://frd-proxy.emea.zf-world.com:8080 \
+#    no_proxy=.zf-world.com \
+#    HTTP_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
+#    HTTPS_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
+#    NO_PROXY=.zf-world.com
 
 USER root
 
