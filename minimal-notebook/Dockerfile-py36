@@ -12,12 +12,12 @@ RUN yum install -y rh-nodejs10
 #### Default PATH ####
 
 # Set ZF proxies
-ENV http_proxy=http://frd-proxy.emea.zf-world.com:8080 \
-    https_proxy=http://frd-proxy.emea.zf-world.com:8080 \
-    no_proxy=.zf-world.com \
-    HTTP_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
-    HTTPS_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
-    NO_PROXY=.zf-world.com
+#ENV http_proxy=http://frd-proxy.emea.zf-world.com:8080 \
+#    https_proxy=http://frd-proxy.emea.zf-world.com:8080 \
+#    no_proxy=.zf-world.com \
+#    HTTP_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
+#    HTTPS_PROXY=http://frd-proxy.emea.zf-world.com:8080 \
+#    NO_PROXY=.zf-world.com
 
 ENV CUDA_HOME /usr/local/cuda
 ENV PATH $PATH:$CUDA_HOME
