@@ -16,7 +16,8 @@ ENV http_proxy=http://frd-proxy.emea.zf-world.com:8080 \
 USER root
 
 #### Packages ####
-RUN yum clean all && yum repolist && yum install -y epel-release
+RUN yum clean all && yum repolist
+#RUN yum clean all && yum repolist && yum install -y epel-release
 
 RUN yum install -y rh-nodejs10
 
