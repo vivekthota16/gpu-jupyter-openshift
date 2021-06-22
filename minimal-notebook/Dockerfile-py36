@@ -1,5 +1,6 @@
 #FROM registry.cloud.zf-world.com/zf/zf-rhel8-ubi-python-38
-FROM registry.cloud.zf-world.com/aitechcenter/centos7-python38:latest
+#FROM registry.cloud.zf-world.com/aitechcenter/centos7-python38:latest
+FROM registry.redhat.io/rhscl/python-38-rhel7:latest
 #FROM centos/python-38-centos7:latest
 
 LABEL maintainer "Z0003864<vivek.thota@zf.com>"
